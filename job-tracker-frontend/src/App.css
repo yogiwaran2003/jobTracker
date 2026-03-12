@@ -47,3 +47,52 @@
   color: var(--text-muted);
   font-size: 1.25rem;
 }
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .kanban-board {
+    flex-wrap: wrap;
+  }
+
+  .kanban-board > * {
+    min-width: calc(50% - 0.75rem);
+    flex: 1 1 calc(50% - 0.75rem);
+  }
+
+  .app-container {
+    overflow: auto;
+  }
+
+  .board-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .app-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .logo h1 {
+    font-size: 1.15rem;
+  }
+
+  .board-container {
+    padding: 1rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .kanban-board {
+    flex-direction: column;
+    gap: 1rem;
+    height: auto;
+  }
+
+  .kanban-board > * {
+    min-width: 100%;
+    max-height: none;
+  }
+}
