@@ -19,12 +19,9 @@ public class JobTrackerApplication {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**")
-						.allowedOrigins(
-							"http://localhost:5173",
-							"https://job-tracker-xi-five.vercel.app",
-							"https://job-tracker-s-yogeswarans-projects.vercel.app"
-						)
-						.allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
+						.allowedOriginPatterns("*")
+						.allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+						.allowedHeaders("*");
 			}
 		};
 	}
