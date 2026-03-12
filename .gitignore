@@ -1,0 +1,21 @@
+# Backend
+job-tracker-backend/target/
+job-tracker-backend/*.class
+job-tracker-backend/.mvn/
+job-tracker-backend/mvnw
+job-tracker-backend/mvnw.cmd
+
+# Frontend
+job-tracker-frontend/node_modules/
+job-tracker-frontend/dist/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db

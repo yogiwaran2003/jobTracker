@@ -1,0 +1,53 @@
+.kanban-column {
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+  width: 100%;
+  max-height: calc(100vh - 120px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.column-header {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.column-header h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.job-count {
+  background-color: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+}
+
+/* Status specific top borders */
+.column-wishlist { border-top: 3px solid var(--status-wishlist); }
+.column-applied { border-top: 3px solid var(--status-applied); }
+.column-interviewing { border-top: 3px solid var(--status-interview); }
+.column-offer { border-top: 3px solid var(--status-offer); }
+
+.column-content {
+  padding: 1rem;
+  flex: 1;
+  overflow-y: auto;
+  transition: background-color var(--transition-fast);
+  min-height: 150px;
+}
+
+.column-content.drag-over {
+  background-color: rgba(255, 255, 255, 0.02);
+}
