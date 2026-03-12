@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://jobtracker-d0wr.onrender.com/api/jobs';
+const API_BASE_URL = 'https://jobtracker-1-4aw4.onrender.com/api/jobs';
 
 export const jobApi = {
     // Get all jobs
