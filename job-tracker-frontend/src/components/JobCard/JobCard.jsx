@@ -11,6 +11,7 @@ const JobCard = ({ job, index, onDelete }) => {
       case 'APPLIED': return 'var(--status-applied)';
       case 'INTERVIEWING': return 'var(--status-interview)';
       case 'OFFER': return 'var(--status-offer)';
+      case 'REJECTED': return 'var(--status-rejected)';
       default: return 'var(--text-muted)';
     }
   };

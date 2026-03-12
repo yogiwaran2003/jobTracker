@@ -1,21 +1,43 @@
-# Backend
+# Java / Maven
 job-tracker-backend/target/
 job-tracker-backend/*.class
 job-tracker-backend/.mvn/
 job-tracker-backend/mvnw
 job-tracker-backend/mvnw.cmd
+*.jar
+*.war
+*.ear
 
-# Frontend
+# Node.js / React
 job-tracker-frontend/node_modules/
 job-tracker-frontend/dist/
+job-tracker-frontend/dist-ssr/
+job-tracker-frontend/npm-debug.log*
+job-tracker-frontend/yarn-debug.log*
+job-tracker-frontend/yarn-error.log*
+job-tracker-frontend/pnpm-debug.log*
+job-tracker-frontend/*.local
 
-# IDE
+# Keys and Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDEs and Editors
 .idea/
 .vscode/
 *.iml
 *.iws
 *.ipr
+*.swp
+*.swo
 
-# OS
+# OS files
 .DS_Store
+.DS_Store?
+._*
 Thumbs.db
+ehthumbs.db
+Desktop.ini

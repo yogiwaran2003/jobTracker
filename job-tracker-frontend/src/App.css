@@ -14,12 +14,104 @@
   z-index: 10;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
 .logo h1 {
   font-size: 1.5rem;
   background: linear-gradient(to right, var(--text-primary), var(--text-muted));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin: 0;
+}
+
+/* Header Stats */
+.header-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+}
+
+.header-stat-value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.header-stat-value.accent-interview {
+  color: var(--status-interview);
+}
+
+.header-stat-value.accent-offer {
+  color: var(--status-offer);
+}
+
+.header-stat-label {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.header-stat-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Header actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.view-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all var(--transition-normal);
+}
+
+.view-toggle-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.view-toggle-btn.active {
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.view-toggle-btn.ai-prep-btn {
+  color: #a855f7;
+  border-color: rgba(168, 85, 247, 0.2);
+  background: rgba(168, 85, 247, 0.06);
+}
+
+.view-toggle-btn.ai-prep-btn:hover {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.4);
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.15);
 }
 
 .board-container {
@@ -34,7 +126,7 @@
 
 .kanban-board {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.25rem;
   height: 100%;
   align-items: flex-start;
 }
@@ -67,6 +159,10 @@
     overflow-y: auto;
     overflow-x: hidden;
   }
+
+  .header-stats {
+    display: none;
+  }
 }
 
 /* Mobile */
@@ -94,5 +190,13 @@
   .kanban-board > * {
     min-width: 100%;
     max-height: none;
+  }
+
+  .header-stats {
+    display: none;
+  }
+
+  .view-toggle-btn span:not(.icon) {
+    display: none;
   }
 }

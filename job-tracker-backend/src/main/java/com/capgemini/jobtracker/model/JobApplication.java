@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
 @Entity
@@ -33,7 +34,17 @@ public class JobApplication {
     private ApplicationStatus status;
 
     private LocalDateTime appliedDate;
-    
+
+    @Column(length = 5000)
+    private String notes;
+
+    private String salary;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
+
     // Will automatically set current date when created if not provided
     @PrePersist
     protected void onCreate() {

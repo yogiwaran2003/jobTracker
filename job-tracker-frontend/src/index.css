@@ -17,6 +17,7 @@
   --status-applied: #3b82f6; /* Blue */
   --status-interview: #f59e0b; /* Amber */
   --status-offer: #10b981; /* Emerald */
+  --status-rejected: #ef4444; /* Red */
   
   --danger: #ef4444;
   --success: #22c55e;

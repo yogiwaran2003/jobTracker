@@ -39,6 +39,7 @@
 .column-applied { border-top: 3px solid var(--status-applied); }
 .column-interviewing { border-top: 3px solid var(--status-interview); }
 .column-offer { border-top: 3px solid var(--status-offer); }
+.column-rejected { border-top: 3px solid var(--status-rejected); }
 
 .column-content {
   padding: 1rem;
