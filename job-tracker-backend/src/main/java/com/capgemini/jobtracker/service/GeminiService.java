@@ -18,7 +18,7 @@ public class GeminiService {
     @Value("${gemini.api.key}")
     private String apiKey;
 
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public GeminiService() {
@@ -28,11 +28,11 @@ public class GeminiService {
     private RestTemplate createInsecureRestTemplate() {
         try {
             TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
-                    public X509Certificate[] getAcceptedIssuers() { return null; }
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) { }
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) { }
-                }
+                    new X509TrustManager() {
+                        public X509Certificate[] getAcceptedIssuers() { return null; }
+                        public void checkClientTrusted(X509Certificate[] certs, String authType) { }
+                        public void checkServerTrusted(X509Certificate[] certs, String authType) { }
+                    }
             };
             SSLContext sc = SSLContext.getInstance("SSL");
             sc.init(null, trustAllCerts, new java.security.SecureRandom());
@@ -40,15 +40,19 @@ public class GeminiService {
             HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
 
             SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-            requestFactory.setConnectTimeout(10000);
-            requestFactory.setReadTimeout(10000);
+
+            // --- TIMEOUT UPDATES ---
+            requestFactory.setConnectTimeout(15000); // 15 seconds to connect
+            requestFactory.setReadTimeout(60000);    // 60 seconds to wait for AI to finish thinking
+
             return new RestTemplate(requestFactory);
         } catch (Exception e) {
-            return new RestTemplate(); // Fallback
+            return new RestTemplate();
         }
     }
 
-    private static final String GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+    // Updated to the version 2.5 flash which we confirmed is available for you
+    private static final String GEMINI_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent";
 
     public Map<String, Object> generateInterviewPrep(String jobTitle, String companyName, String jobDescription) {
         String prompt = buildPrompt(jobTitle, companyName, jobDescription);
@@ -56,7 +60,6 @@ public class GeminiService {
         try {
             String url = GEMINI_URL + "?key=" + apiKey;
 
-            // Build request body
             Map<String, Object> requestBody = new HashMap<>();
             List<Map<String, Object>> contents = new ArrayList<>();
             Map<String, Object> content = new HashMap<>();
@@ -80,9 +83,9 @@ public class GeminiService {
 
             return errorResponse("Gemini API returned status: " + response.getStatusCode());
         } catch (org.springframework.web.client.ResourceAccessException e) {
-            return errorResponse("Network error: Could not connect to Gemini API. If you are on a corporate VPN (like Zscaler), it might be blocking the request or intercepting SSL certificates. Details: " + e.getMessage());
+            return errorResponse("Timeout/Network error: The AI took too long to respond or the connection was reset. Details: " + e.getMessage());
         } catch (Exception e) {
-            return errorResponse("Failed to call Gemini API: " + e.getMessage() + " (" + e.getClass().getSimpleName() + ")");
+            return errorResponse("Failed to call Gemini API: " + e.getMessage());
         }
     }
 
@@ -94,50 +97,35 @@ public class GeminiService {
             Company: %s
             Job Description: %s
             
-            Please provide your response in the following JSON format exactly (no markdown, no code blocks, just raw JSON):
+            Return ONLY a valid JSON object. Do not include markdown formatting like ```json.
+            Structure:
             {
-              "technicalQuestions": [
-                {"question": "...", "tip": "Brief tip on how to answer this"}
-              ],
-              "behavioralQuestions": [
-                {"question": "...", "tip": "Brief tip on how to answer this"}
-              ],
-              "companyTips": ["tip1", "tip2", "tip3"],
-              "keySkills": ["skill1", "skill2", "skill3"],
-              "salaryRange": "Expected salary range based on the role and company"
+              "technicalQuestions": [{"question": "string", "tip": "string"}],
+              "behavioralQuestions": [{"question": "string", "tip": "string"}],
+              "companyTips": ["string"],
+              "keySkills": ["string"],
+              "salaryRange": "string"
             }
-            
-            Generate exactly 5 technical questions, 4 behavioral questions, 3 company-specific tips, 
-            5 key skills to highlight, and a salary estimate.
-            Return ONLY valid JSON, no additional text.
-            """.formatted(jobTitle, companyName, 
-                    jobDescription != null && !jobDescription.isEmpty() ? jobDescription : "Not provided");
+            """.formatted(jobTitle, companyName,
+                jobDescription != null && !jobDescription.isEmpty() ? jobDescription : "Not provided");
     }
 
     private Map<String, Object> parseGeminiResponse(String responseBody) {
         try {
             JsonNode root = objectMapper.readTree(responseBody);
-            JsonNode textNode = root.path("candidates").get(0)
-                    .path("content").path("parts").get(0).path("text");
-            
-            String text = textNode.asText().trim();
-            
-            // Clean up - remove Markdown code blocks if present
-            if (text.startsWith("```json")) {
-                text = text.substring(7);
-            } else if (text.startsWith("```")) {
-                text = text.substring(3);
+            String text = root.path("candidates").get(0)
+                    .path("content").path("parts").get(0).path("text").asText().trim();
+
+            // Better JSON cleaning logic
+            if (text.contains("{")) {
+                text = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
             }
-            if (text.endsWith("```")) {
-                text = text.substring(0, text.length() - 3);
-            }
-            text = text.trim();
 
             Map<String, Object> parsed = objectMapper.readValue(text, Map.class);
             parsed.put("success", true);
             return parsed;
         } catch (Exception e) {
-            return errorResponse("Failed to parse AI response: " + e.getMessage());
+            return errorResponse("Failed to parse AI response. The AI might have returned malformed data.");
         }
     }
 

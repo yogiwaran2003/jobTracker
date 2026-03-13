@@ -1,7 +1,6 @@
 package com.capgemini.jobtracker.service;
 
 import com.capgemini.jobtracker.model.dto.ScrapedJobDetails;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -9,66 +8,62 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.PostConstruct;
 import java.time.Duration;
 import java.util.List;
 
 @Service
 public class WebScraperService {
 
-    @PostConstruct
-    public void setup() {
-        // Setup ChromeDriver automatically depending on the OS browser version
-        WebDriverManager.chromedriver().setup();
-    }
-
+    /**
+     * Scrapes job details from a given URL.
+     * Note: Selenium 4.6+ automatically manages the ChromeDriver binary,
+     * so no manual setup or @PostConstruct method is required.
+     */
     public ScrapedJobDetails scrapeJobDetails(String url) {
         WebDriver driver = null;
         try {
             ChromeOptions options = new ChromeOptions();
-            options.addArguments("--headless=new"); // run headlessly, meaning no UI window will open
+            options.addArguments("--headless=new"); // Runs without a UI window
             options.addArguments("--disable-gpu");
             options.addArguments("--no-sandbox");
             options.addArguments("--disable-dev-shm-usage");
             options.addArguments("--remote-allow-origins=*");
-            
+
+            // Instantiating ChromeDriver triggers Selenium Manager internally
             driver = new ChromeDriver(options);
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
             driver.get(url);
 
-            // A heuristic approach to find job title and company.
-            // In a real production application, we'd have specific scrapers for LinkedIn, Indeed, etc.
-            
-            String pageTitle = driver.getTitle(); // E.g., "Software Engineer at Google | LinkedIn"
+            String pageTitle = driver.getTitle();
             String jobTitle = "Unknown Title";
             String companyName = "Unknown Company";
 
-            // Basic Heuristic parsing based on common hyphenation or pipe splitting in `<title>`:
+            // --- Heuristic 1: Parse the <title> tag ---
             if (pageTitle != null) {
                 if (pageTitle.contains(" at ")) {
                     String[] parts = pageTitle.split(" at ");
                     jobTitle = parts[0].trim();
-                    companyName = parts[1].split("\\|")[0].trim(); // Remove suffix like " | LinkedIn"
+                    companyName = parts[1].split("\\|")[0].trim();
                 } else if (pageTitle.contains("|")) {
                     String[] parts = pageTitle.split("\\|");
                     jobTitle = parts[0].trim();
                     if (parts.length > 1) {
-                         companyName = parts[1].trim();
+                        companyName = parts[1].trim();
                     }
                 } else if (pageTitle.contains("-")) {
                     String[] parts = pageTitle.split("-");
                     jobTitle = parts[0].trim();
-                     if (parts.length > 1) {
-                         companyName = parts[1].trim();
-                     }
+                    if (parts.length > 1) {
+                        companyName = parts[1].trim();
+                    }
                 } else {
                     jobTitle = pageTitle;
                 }
             }
-            
-            // Refinement Using Common Class Names for popular boards (like LinkedIn)
+
+            // --- Heuristic 2: Refinement using common CSS selectors ---
             try {
-                // Try finding common LinkedIn classes or similar
+                // Look for common LinkedIn/Indeed title and company selectors
                 List<WebElement> titleElements = driver.findElements(By.cssSelector("h1.top-card-layout__title, .jobsearch-JobInfoHeader-title"));
                 if (!titleElements.isEmpty()) {
                     jobTitle = titleElements.get(0).getText().trim();
@@ -79,7 +74,7 @@ public class WebScraperService {
                     companyName = companyElements.get(0).getText().trim();
                 }
             } catch (Exception ignored) {
-                // Ignore DOM exceptions, fallback to title heuristic
+                // Fallback to title heuristic if DOM parsing fails
             }
 
             return ScrapedJobDetails.builder()
@@ -98,7 +93,7 @@ public class WebScraperService {
                     .build();
         } finally {
             if (driver != null) {
-                driver.quit(); // Always quit to prevent memory leaks!
+                driver.quit(); // Critical: Quitting prevents memory leaks and hanging processes
             }
         }
     }

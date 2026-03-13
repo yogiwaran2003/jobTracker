@@ -2,6 +2,7 @@ package com.capgemini.jobtracker.controller;
 
 import com.capgemini.jobtracker.service.GeminiService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,11 @@ public class AiController {
         if (Boolean.TRUE.equals(result.get("success"))) {
             return ResponseEntity.ok(result);
         } else {
+            String errorMsg = (String) result.get("error");
+            // If it's a rate limit, return a 429 instead of a 500
+            if (errorMsg != null && errorMsg.contains("429")) {
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(result);
+            }
             return ResponseEntity.internalServerError().body(result);
         }
     }
